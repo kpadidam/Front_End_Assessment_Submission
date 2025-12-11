@@ -1,0 +1,106 @@
+<div class="container mx-auto p-6">
+  <h1 class="text-3xl font-bold mb-6">Partners</h1>
+
+  <!-- Loading Spinner -->
+  @if (partnersResource.isLoading()) {
+    <div class="flex justify-center items-center py-20">
+      <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-blue-500"></div>
+    </div>
+  }
+
+  <!-- Error State -->
+  @if (partnersResource.error()) {
+    <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+      Error loading partners: {{ partnersResource.error() }}
+    </div>
+  }
+
+  <!-- Partners Table -->
+  @if (!partnersResource.isLoading() && !partnersResource.error()) {
+    <div class="overflow-x-auto shadow-md rounded-lg">
+      <table class="min-w-full bg-white">
+        <thead class="bg-gray-100 sticky top-0">
+          <tr>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
+              ID
+            </th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
+              Partner Name
+            </th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
+              Partner Type
+            </th>
+            <th class="px-6 py-3 text-right text-xs font-medium text-gray-600 uppercase tracking-wider">
+              Conversions
+            </th>
+            <th class="px-6 py-3 text-right text-xs font-medium text-gray-600 uppercase tracking-wider">
+              Commissions
+            </th>
+            <th class="px-6 py-3 text-right text-xs font-medium text-gray-600 uppercase tracking-wider">
+              Gross Sales
+            </th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
+              Contract Type
+            </th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+          @for (partner of paginatedPartners(); track partner.id) {
+            <tr class="hover:bg-gray-50 transition-colors duration-150">
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                {{ partner.id }}
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                {{ partner.partnerName }}
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full"
+                      [class.bg-purple-100]="partner.partnerType === 'Influencer'"
+                      [class.text-purple-800]="partner.partnerType === 'Influencer'"
+                      [class.bg-blue-100]="partner.partnerType === 'Affiliate'"
+                      [class.text-blue-800]="partner.partnerType === 'Affiliate'">
+                  {{ partner.partnerType }}
+                </span>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right">
+                {{ partner.conversions }}
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right">
+                ${{ partner.commissions.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}) }}
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right">
+                ${{ partner.grosssales.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}) }}
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                {{ partner.contract }}
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination Controls -->
+    @if (totalPages() > 1) {
+      <div class="flex items-center justify-between mt-6">
+        <div class="text-sm text-gray-700">
+          Page {{ currentPage() }} of {{ totalPages() }}
+        </div>
+        <div class="flex gap-2">
+          <button
+            (click)="previousPage()"
+            [disabled]="currentPage() === 1"
+            class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+            Previous
+          </button>
+          <button
+            (click)="nextPage()"
+            [disabled]="currentPage() === totalPages()"
+            class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+            Next
+          </button>
+        </div>
+      </div>
+    }
+  }
+</div>

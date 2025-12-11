@@ -1,59 +1,216 @@
-# InflektionFEA
+# Inflektion Frontend Assessment
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.0.3.
+A modern, high-performance Partner Portal application built with Angular 19, showcasing partner data with advanced table functionality, client-side pagination, and real-time data fetching.
 
-## Development server
 
-To start a local development server, run:
+## Table of Contents
 
-```bash
-ng serve
+- [Overview](#overview)
+- [Technologies Used](#technologies-used)
+- [Features](#features)
+- [Project Structure](#project-structure)
+- [Getting Started](#getting-started)
+- [Architecture & Design Decisions](#architecture--design-decisions)
+- [API Integration](#api-integration)
+- [Error Handling](#error-handling)
+- [Future Enhancements](#future-enhancements)
+
+## Overview
+
+This project is a Single Page Application (SPA) developed for Inflektion's partner Portal.
+
+The application is based on Angular development:
+- **Angular 19** with standalone components
+- **Signals-first reactive architecture**
+- **Resource API** for declarative data fetching
+- **Tailwind CSS** for utility-first styling
+
+## Technologies Used
+
+| Technology | Version | Purpose |
+|------------|---------|---------|
+| **Angular** | 19.x | Frontend framework with standalone components |
+| **TypeScript** | 5.x | Type-safe development |
+| **Tailwind CSS** | 3.4+ | Utility-first CSS framework |
+| **RxJS** | 7.x | Reactive programming (minimal usage) |
+
+## Features
+
+### Core Features
+- **Dynamic Data Fetching** - Retrieves partner data from REST API
+- **Interactive Table** - Displays all partner fields with proper formatting
+- **Client-Side Pagination** - 15 items per page with navigation controls
+- **Loading States** - Animated spinner during data fetch
+- **Error Handling** - User-friendly error messages with retry capability
+- **Responsive Design** - Adapts to desktop, tablet, and mobile screens
+- **Sticky Table Headers** - Headers remain visible during scroll
+- **Hover Effects** - Interactive row highlighting
+- **Type Safety** - Strict TypeScript typing throughout
+
+### Data Fields Displayed
+1. **ID** - Unique partner identifier
+2. **Partner Name** - Name of the partner
+3. **Partner Type** - Influencer or Affiliate (color-coded badges)
+4. **Conversions** - Number of conversions
+5. **Commissions** - Commission amount (formatted as currency)
+6. **Gross Sales** - Total sales (formatted as currency)
+7. **Contract Type** - Type of contract agreement
+
+## Project Structure
+
+```
+src/
+├── app/
+│   ├── features/
+│   │   └── partners/              # Partners feature module
+│   │       ├── components/
+│   │       │   └── partner-list/
+│   │       │       ├── partner-list.component.ts
+│   │       │       ├── partner-list.component.html
+│   │       │       └── partner-list.component.css
+│   │       ├── models/
+│   │       │   └── partner.model.ts    # Partner interface
+│   │       ├── services/
+│   │       │   └── partner.service.ts  # Data fetching service
+│   │       └── index.ts                # Barrel exports
+│   ├── app.ts                     # Root component
+│   ├── app.html                   # Root template
+│   ├── app.routes.ts              # Application routing
+│   └── app.config.ts              # App configuration
+├── styles.css                     # Global styles + Tailwind
+└── main.ts                        # Application bootstrap
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+### Architecture: Feature-Based Structure
 
-## Code scaffolding
+The project follows a **feature-based architecture** rather than a traditional layer-based approach. This provides:
+- Better scalability as features grow
+- Clear separation of concerns
+- Easier code navigation
+- Improved maintainability
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
 
-```bash
-ng generate component component-name
+## Architecture & Design Decisions
+
+### 1. Signals-First Reactive Architecture
+
+**Decision:** Use Angular Signals instead of traditional RxJS Observables for state management.
+
+**Rationale:**
+- **Fine-grained reactivity** - Only affected components re-render
+- **Better performance** - No Zone.js overhead
+- **Improved developer experience** - Simpler mental model
+- **Future-proof** - Aligns with Angular's strategic direction
+
+### 3. Standalone Components
+
+**Decision:** Use standalone components (no NgModules).
+
+**Rationale:**
+- **Simpler architecture** - No module complexity
+- **Better tree-shaking** - Smaller bundle sizes
+- **Easier testing** - Isolated component testing
+- **Modern standard** - Default in Angular 19
+
+### 4. Tailwind CSS Utility-First Styling
+
+**Decision:** Use Tailwind CSS instead of component-scoped SCSS.
+
+**Rationale:**
+- **Rapid development** - Pre-built utility classes
+- **Consistency** - Design system tokens ensure uniformity
+- **Smaller bundle** - Purges unused CSS automatically
+- **Pixel-perfect implementation** - Easy to match Figma designs
+
+### 5. Client-Side Pagination
+
+**Decision:** Implement pagination logic in the frontend.
+
+**Rationale:**
+- **API limitation** - API returns all 22 records (no server-side pagination)
+- **Performance** - Small dataset, no performance penalty
+- **User experience** - Instant navigation between pages
+- **Computed signals** - Efficient reactivity without manual subscriptions
+
+## API Integration
+
+### Endpoint
+```
+GET https://analyze.inflektion.ai/partners.php
 ```
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
-
-```bash
-ng generate --help
+### Response Format
+```json
+[
+  {
+    "id": "1",
+    "partnerName": "Green Living",
+    "partnerType": "Influencer",
+    "conversions": 7,
+    "commissions": 420,
+    "grosssales": 620,
+    "contract": "Partner Default"
+  }
+]
 ```
 
-## Building
-
-To build the project run:
-
-```bash
-ng build
+### Data Model (TypeScript Interface)
+```typescript
+export interface Partner {
+  id: string;
+  partnerName: string;
+  partnerType: 'Influencer' | 'Affiliate';
+  conversions: number;
+  commissions: number;
+  grosssales: number;
+  contract: string;
+}
 ```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+### Type Safety
+- **Strict typing** enforced throughout the application
+- **Union types** for partner types prevent invalid values
+- **No `any` types** - Full TypeScript strict mode compliance
 
-## Running unit tests
+## Error Handling
 
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
+### Network Errors
+The application gracefully handles various error scenarios:
 
-```bash
-ng test
-```
+1. **API Unavailable**
+   - Displays user-friendly error message
+   - Shows error details in development mode
+   - Provides visual feedback (red banner)
 
-## Running end-to-end tests
+2. **Network Timeout**
+   - Automatic timeout handling via fetch API
+   - Clear error messaging to user
 
-For end-to-end (e2e) testing, run:
+3. **Invalid Data**
+   - TypeScript interfaces ensure data structure
+   - Null-safe operators prevent runtime errors
+   - Fallback to empty array if data is invalid
 
-```bash
-ng e2e
-```
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+## Next Enhancements
 
-## Additional Resources
+### Planned Features
+- [ ] **Sorting** - Click table headers to sort by column
+- [ ] **Filtering** - Filter partners by type, search by name
+- [ ] **Export Functionality** - Export table data to CSV/Excel
+- [ ] **Message Partners** - Modal for sending messages
+- [ ] **Date Range Picker** - Filter by date ranges
+- [ ] **Advanced Analytics** - Charts and graphs for partner performance
+- [ ] **Server-Side Pagination** - For larger datasets
+- [ ] **Caching Strategy** - Reduce API calls with smart caching
+- [ ] **Offline Support** - Service Worker integration
+- [ ] **Unit Tests** - Comprehensive test coverage
+- [ ] **E2E Tests** - Cypress or Playwright integration
 
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+
+
+## Author
+
+Karthik Padidam
+
+Developed for Inflektion Frontend  Assessment
